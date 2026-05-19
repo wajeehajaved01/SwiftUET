@@ -1,0 +1,347 @@
+/* ============================================
+   SwiftUET - Seat Booking Modal Styles
+   ============================================ */
+
+.seat-booking-modal {
+    max-width: 800px;
+}
+
+.modal-subtitle {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+    margin: var(--spacing-xs) 0 0 0;
+}
+
+/* Bus Front */
+.bus-front {
+    background: linear-gradient(135deg, var(--color-navy-deep) 0%, var(--color-navy-medium) 100%);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    margin: 0 calc(-1 * var(--spacing-xl)) var(--spacing-xl);
+}
+
+.driver-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    color: var(--color-white);
+    font-weight: 600;
+}
+
+.driver-icon {
+    font-size: var(--text-3xl);
+}
+
+.driver-label {
+    font-size: var(--text-lg);
+}
+
+/* Seat Grid */
+.seat-grid {
+    background-color: var(--color-gray-50);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.seat-row:last-child {
+    margin-bottom: 0;
+}
+
+.row-label {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-gray-600);
+    min-width: 60px;
+    text-align: right;
+}
+
+.seats-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex: 1;
+}
+
+.aisle {
+    width: var(--spacing-xl);
+    border-left: 2px dashed var(--color-gray-300);
+    margin: 0 var(--spacing-sm);
+}
+
+/* Seat Buttons */
+.seat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 80px;
+    border: 2px solid var(--color-gray-300);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-white);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    padding: var(--spacing-sm);
+}
+
+.seat-icon {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.seat-number {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--color-gray-600);
+}
+
+/* Seat States */
+.seat-available {
+    border-color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.seat-available:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-accent-teal);
+    background-color: var(--color-info-light);
+}
+
+.seat-selected {
+    border-color: var(--color-accent-yellow);
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-xl);
+}
+
+.seat-selected .seat-icon {
+    animation: bounce 0.5s ease-in-out;
+}
+
+.seat-selected .seat-number {
+    color: var(--color-navy-deep);
+    font-weight: 800;
+}
+
+.seat-booked {
+    border-color: var(--color-gray-400);
+    background-color: var(--color-gray-200);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.seat-booked .seat-icon {
+    opacity: 0.5;
+}
+
+.seat-faculty {
+    border-color: var(--color-danger);
+    background: repeating-linear-gradient(45deg,
+            var(--color-danger-light),
+            var(--color-danger-light) 10px,
+            #FEE2E2 10px,
+            #FEE2E2 20px);
+    cursor: not-allowed;
+    position: relative;
+}
+
+.seat-faculty::before {
+    content: '🔒';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: var(--text-xs);
+}
+
+.faculty-badge {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--color-danger);
+    background-color: var(--color-white);
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Legend */
+.seat-legend {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.legend-icon {
+    width: 40px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xl);
+    border: 2px solid;
+}
+
+.legend-icon.seat-available {
+    border-color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.legend-icon.seat-selected {
+    border-color: var(--color-accent-yellow);
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+}
+
+.legend-icon.seat-booked {
+    border-color: var(--color-gray-400);
+    background-color: var(--color-gray-200);
+    opacity: 0.6;
+}
+
+.legend-icon.seat-faculty {
+    border-color: var(--color-danger);
+    background: repeating-linear-gradient(45deg,
+            var(--color-danger-light),
+            var(--color-danger-light) 5px,
+            #FEE2E2 5px,
+            #FEE2E2 10px);
+}
+
+/* Selected Seat Info */
+.selected-seat-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+    animation: slideUp 0.3s ease-out;
+}
+
+.info-icon {
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-white);
+    color: var(--color-accent-teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-content h4 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.info-content p {
+    font-size: var(--text-sm);
+    color: var(--color-navy-medium);
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .seat-booking-modal {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .seat-grid {
+        padding: var(--spacing-md);
+    }
+
+    .seat {
+        width: 60px;
+        height: 70px;
+    }
+
+    .seat-icon {
+        font-size: var(--text-xl);
+    }
+
+    .seat-number {
+        font-size: 10px;
+    }
+
+    .row-label {
+        min-width: 50px;
+        font-size: var(--text-xs);
+    }
+
+    .aisle {
+        width: var(--spacing-md);
+    }
+
+    .seat-legend {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .legend-item {
+        font-size: var(--text-xs);
+    }
+
+    .legend-icon {
+        width: 35px;
+        height: 40px;
+        font-size: var(--text-lg);
+    }
+
+    .selected-seat-info {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .seat {
+        width: 50px;
+        height: 60px;
+    }
+
+    .seat-icon {
+        font-size: var(--text-lg);
+    }
+
+    .faculty-badge {
+        font-size: 6px;
+    }
+}

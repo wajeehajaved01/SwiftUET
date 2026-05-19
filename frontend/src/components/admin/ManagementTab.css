@@ -1,0 +1,223 @@
+/* ============================================
+   SwiftUET - Management Tab Styles
+   ============================================ */
+
+.management-tab {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* Section Selector */
+.section-selector {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background-color: var(--color-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.section-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background-color: transparent;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-weight: 600;
+    color: var(--color-gray-600);
+}
+
+.section-btn:hover {
+    border-color: var(--color-accent-teal);
+    background-color: var(--color-gray-50);
+}
+
+.section-btn.active {
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    border-color: transparent;
+    color: var(--color-navy-deep);
+    box-shadow: var(--shadow-lg);
+}
+
+.section-btn .section-icon {
+    font-size: var(--text-3xl);
+}
+
+/* Management Section */
+.management-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.management-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+/* Table Styles */
+.btn-icon-small {
+    background: none;
+    border: none;
+    font-size: var(--text-xl);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    transition: all var(--transition-base);
+    margin: 0 var(--spacing-xs);
+}
+
+.btn-icon-small:hover {
+    transform: scale(1.2);
+}
+
+/* Settings */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.setting-description {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.setting-control {
+    flex-shrink: 0;
+}
+
+.toggle-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border: none;
+    border-radius: var(--radius-xl);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    min-width: 150px;
+    justify-content: center;
+}
+
+.toggle-button.locked {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+.toggle-button.locked:hover {
+    background-color: #DC2626;
+    transform: scale(1.05);
+}
+
+.toggle-button.unlocked {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.toggle-button.unlocked:hover {
+    background-color: #059669;
+    transform: scale(1.05);
+}
+
+.toggle-icon {
+    font-size: var(--text-2xl);
+}
+
+/* Setting Preview */
+.setting-preview {
+    padding: var(--spacing-xl);
+    background-color: var(--color-white);
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+}
+
+.preview-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-lg) 0;
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+}
+
+.preview-label {
+    font-weight: 600;
+    color: var(--color-gray-600);
+}
+
+.preview-value {
+    font-weight: 700;
+    color: var(--color-navy-deep);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .section-selector {
+        flex-direction: column;
+    }
+
+    .section-btn {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .toggle-button {
+        width: 100%;
+    }
+}

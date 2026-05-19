@@ -1,0 +1,391 @@
+/* ============================================
+   SwiftUET - Student Dashboard Styles
+   ============================================ */
+
+.student-dashboard {
+    min-height: calc(100vh - 64px);
+    padding: var(--spacing-xl);
+    background-color: var(--color-gray-50);
+}
+
+/* Delay Alert Banner */
+.delay-alert-banner {
+    background: linear-gradient(135deg, var(--color-danger) 0%, #DC2626 100%);
+    color: var(--color-white);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    box-shadow: var(--shadow-xl);
+    animation: slideDown 0.5s ease-out, pulse 2s ease-in-out infinite;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: var(--shadow-xl);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+    }
+}
+
+.alert-icon {
+    font-size: var(--text-4xl);
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--color-white);
+}
+
+.alert-message {
+    font-size: var(--text-base);
+    margin: 0;
+    opacity: 0.95;
+}
+
+.alert-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--color-white);
+    font-size: var(--text-2xl);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.dashboard-header h1 {
+    font-size: var(--text-4xl);
+    color: var(--color-navy-deep);
+    margin-bottom: var(--spacing-sm);
+}
+
+.dashboard-subtitle {
+    font-size: var(--text-lg);
+    color: var(--color-gray-600);
+    margin: 0;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+}
+
+.dashboard-section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.section-icon {
+    font-size: var(--text-2xl);
+    margin-right: var(--spacing-sm);
+}
+
+/* Live Track Section */
+.live-track-section {
+    grid-column: 1 / -1;
+}
+
+.map-container {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background-color: var(--color-gray-100);
+}
+
+.route-status-card {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    left: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background: var(--color-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    z-index: var(--z-dropdown);
+}
+
+.route-status-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.status-icon {
+    font-size: var(--text-3xl);
+}
+
+.route-name {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0;
+}
+
+.route-description {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    margin: var(--spacing-xs) 0 0 0;
+}
+
+.route-status-details {
+    display: flex;
+    gap: var(--spacing-xl);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.status-label {
+    font-weight: 600;
+    color: var(--color-gray-600);
+    font-size: var(--text-sm);
+}
+
+.status-value {
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    font-size: var(--text-base);
+}
+
+/* Schedules List */
+.schedules-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.schedule-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-gray-200);
+    transition: all var(--transition-base);
+}
+
+.schedule-card:hover {
+    border-color: var(--color-accent-yellow);
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+}
+
+.schedule-info {
+    flex: 1;
+}
+
+.schedule-route {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.schedule-time,
+.schedule-seats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    margin: var(--spacing-xs) 0;
+}
+
+.time-icon,
+.seat-icon {
+    font-size: var(--text-base);
+}
+
+/* History Section */
+.history-section {
+    grid-column: 1 / -1;
+}
+
+.history-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+}
+
+.history-month {
+    position: relative;
+}
+
+.month-header {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 3px solid var(--color-accent-yellow);
+    display: inline-block;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--color-accent-teal);
+    transition: all var(--transition-base);
+}
+
+.history-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+}
+
+.history-icon {
+    font-size: var(--text-3xl);
+    flex-shrink: 0;
+}
+
+.history-details {
+    flex: 1;
+}
+
+.history-route {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.history-date,
+.history-seat {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    margin: var(--spacing-xs) 0;
+}
+
+/* Responsive Design */
+@media (min-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .live-track-section {
+        grid-column: 1 / -1;
+    }
+
+    .history-section {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .student-dashboard {
+        padding: var(--spacing-md);
+    }
+
+    .dashboard-header h1 {
+        font-size: var(--text-3xl);
+    }
+
+    .delay-alert-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-md);
+    }
+
+    .alert-icon {
+        font-size: var(--text-3xl);
+    }
+
+    .route-status-card {
+        position: static;
+        margin-top: var(--spacing-md);
+    }
+
+    .route-status-details {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .schedule-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+    }
+
+    .schedule-card .btn {
+        width: 100%;
+    }
+
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

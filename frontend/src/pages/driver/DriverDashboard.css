@@ -1,0 +1,406 @@
+/* ============================================
+   SwiftUET - Driver Dashboard Styles (Dark Mode)
+   ============================================ */
+
+.driver-dashboard.dark-mode {
+    min-height: 100vh;
+    background-color: var(--color-navy-deep);
+    color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Status Bar */
+.status-bar {
+    background: linear-gradient(135deg, var(--color-navy-medium) 0%, var(--color-navy-light) 100%);
+    padding: var(--spacing-xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    box-shadow: var(--shadow-xl);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-icon {
+    font-size: var(--text-4xl);
+    flex-shrink: 0;
+}
+
+.status-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.status-label {
+    font-size: var(--text-sm);
+    color: var(--color-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.status-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-white);
+}
+
+.status-value-large {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    color: var(--color-accent-yellow);
+}
+
+/* Map Section */
+.map-section {
+    height: 350px;
+    position: relative;
+    border-bottom: 4px solid var(--color-accent-teal);
+}
+
+/* Manifest Section */
+.manifest-section {
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+    background-color: var(--color-navy-medium);
+}
+
+.manifest-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 3px solid var(--color-accent-yellow);
+}
+
+.manifest-icon {
+    font-size: var(--text-4xl);
+}
+
+.student-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background-color: var(--color-navy-deep);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--color-navy-light);
+    transition: all var(--transition-base);
+}
+
+.student-item:hover {
+    border-color: var(--color-accent-teal);
+    transform: translateX(5px);
+}
+
+.student-item.picked-up {
+    opacity: 0.6;
+    border-color: var(--color-success);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.student-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    color: var(--color-navy-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-lg);
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-name {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--color-white);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.student-details {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--text-base);
+    color: var(--color-gray-400);
+    margin: 0;
+}
+
+.detail-icon {
+    font-size: var(--text-lg);
+}
+
+.detail-separator {
+    color: var(--color-gray-600);
+    margin: 0 var(--spacing-xs);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-full);
+    font-size: var(--text-base);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.status-badge.picked-up {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.status-badge.pending {
+    background-color: var(--color-warning);
+    color: var(--color-navy-deep);
+}
+
+.badge-icon {
+    font-size: var(--text-xl);
+}
+
+/* Action Section */
+.action-section {
+    padding: var(--spacing-2xl);
+    background: linear-gradient(135deg, var(--color-navy-medium) 0%, var(--color-navy-deep) 100%);
+    border-top: 4px solid var(--color-accent-yellow);
+}
+
+.action-instructions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    color: var(--color-gray-300);
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+.instruction-icon {
+    font-size: var(--text-3xl);
+    animation: bounce 2s ease-in-out infinite;
+}
+
+/* Hold Button */
+.hold-button {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    border: none;
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: var(--shadow-2xl);
+    transition: all var(--transition-base);
+    user-select: none;
+}
+
+.hold-button:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.5);
+}
+
+.hold-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.hold-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--color-gray-600);
+}
+
+.hold-button.holding {
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+.hold-button.complete {
+    background: var(--color-success);
+    animation: successPulse 0.5s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.hold-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: width 30ms linear;
+    border-radius: var(--radius-2xl);
+}
+
+.hold-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    height: 100%;
+}
+
+.hold-icon {
+    font-size: var(--text-4xl);
+}
+
+.hold-text {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--color-navy-deep);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Loading & Empty States */
+.driver-dashboard.dark-mode .loading,
+.driver-dashboard.dark-mode .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: var(--color-white);
+}
+
+.driver-dashboard.dark-mode .empty-state-icon {
+    font-size: 120px;
+    margin-bottom: var(--spacing-xl);
+    opacity: 0.3;
+}
+
+.driver-dashboard.dark-mode .empty-state h2 {
+    color: var(--color-white);
+    font-size: var(--text-3xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.driver-dashboard.dark-mode .empty-state p {
+    color: var(--color-gray-400);
+    font-size: var(--text-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .status-bar {
+        grid-template-columns: 1fr;
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .status-item {
+        padding: var(--spacing-md);
+    }
+
+    .status-icon {
+        font-size: var(--text-3xl);
+    }
+
+    .status-value {
+        font-size: var(--text-lg);
+    }
+
+    .status-value-large {
+        font-size: var(--text-3xl);
+    }
+
+    .map-section {
+        height: 250px;
+    }
+
+    .manifest-section {
+        padding: var(--spacing-md);
+    }
+
+    .manifest-title {
+        font-size: var(--text-2xl);
+    }
+
+    .student-item {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .student-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: var(--text-xl);
+    }
+
+    .student-name {
+        font-size: var(--text-lg);
+    }
+
+    .student-details {
+        font-size: var(--text-sm);
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--text-sm);
+    }
+
+    .action-section {
+        padding: var(--spacing-lg);
+    }
+
+    .hold-button {
+        height: 80px;
+    }
+
+    .hold-icon {
+        font-size: var(--text-3xl);
+    }
+
+    .hold-text {
+        font-size: var(--text-lg);
+    }
+}

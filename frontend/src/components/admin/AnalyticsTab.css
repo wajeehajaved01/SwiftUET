@@ -1,0 +1,331 @@
+/* ============================================
+   SwiftUET - Analytics Tab Styles
+   ============================================ */
+
+.analytics-tab {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background-color: var(--color-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    border-left: 6px solid;
+    transition: all var(--transition-base);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.metric-card.metric-teal {
+    border-color: var(--color-accent-teal);
+}
+
+.metric-card.metric-yellow {
+    border-color: var(--color-accent-yellow);
+}
+
+.metric-card.metric-success {
+    border-color: var(--color-success);
+}
+
+.metric-card.metric-warning {
+    border-color: var(--color-warning);
+}
+
+.metric-icon {
+    font-size: var(--text-5xl);
+    flex-shrink: 0;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.metric-value {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    color: var(--color-navy-deep);
+    margin-bottom: var(--spacing-sm);
+}
+
+.metric-change {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.metric-change.up {
+    color: var(--color-success);
+}
+
+.metric-change.down {
+    color: var(--color-danger);
+}
+
+.change-icon {
+    font-size: var(--text-lg);
+}
+
+.change-label {
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+/* Analytics Grid */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+/* Chart Card */
+.chart-card {
+    grid-column: 1 / -1;
+}
+
+.chart-placeholder {
+    padding: var(--spacing-xl);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    height: 200px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: var(--spacing-xl);
+}
+
+.chart-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--color-accent-teal) 0%, var(--color-accent-yellow) 100%);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    min-height: 20px;
+    position: relative;
+    transition: all var(--transition-base);
+    animation: growUp 0.5s ease-out;
+}
+
+.chart-bar:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+}
+
+@keyframes growUp {
+    from {
+        height: 0;
+    }
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-600);
+    white-space: nowrap;
+}
+
+.chart-note {
+    text-align: center;
+    color: var(--color-gray-500);
+    font-size: var(--text-sm);
+    font-style: italic;
+    margin: 0;
+}
+
+/* Routes List */
+.routes-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.route-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.route-item:hover {
+    background-color: var(--color-gray-100);
+    transform: translateX(5px);
+}
+
+.route-rank {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-teal) 100%);
+    color: var(--color-navy-deep);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xl);
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.route-info {
+    flex: 1;
+}
+
+.route-name {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.route-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+}
+
+.stat-icon {
+    font-size: var(--text-base);
+}
+
+.route-progress {
+    width: 100px;
+    height: 8px;
+    background-color: var(--color-gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent-teal) 0%, var(--color-accent-yellow) 100%);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-base);
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-left: 3px solid var(--color-accent-teal);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.activity-item:hover {
+    background-color: var(--color-gray-100);
+    transform: translateX(5px);
+}
+
+.activity-icon {
+    font-size: var(--text-2xl);
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-action {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-navy-deep);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.activity-time {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: var(--spacing-lg);
+    }
+
+    .metric-icon {
+        font-size: var(--text-4xl);
+    }
+
+    .metric-value {
+        font-size: var(--text-3xl);
+    }
+
+    .chart-bars {
+        gap: var(--spacing-sm);
+    }
+
+    .route-item {
+        flex-wrap: wrap;
+    }
+
+    .route-progress {
+        width: 100%;
+    }
+}
