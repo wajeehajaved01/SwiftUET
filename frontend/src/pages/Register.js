@@ -1,223 +1,163 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import './Login.css';
 
 const Register = () => {
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        role: 'student',
-        phone: '+92',
-        isFaculty: false
+        firstName: '', lastName: '', email: '',
+        password: '', confirmPassword: '', phoneNumber: '',
+        role: 'student', isFaculty: false
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const { register } = useAuth();
     const navigate = useNavigate();
+    const { register } = useAuth();
 
     const handleChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        setFormData({
-            ...formData,
-            [e.target.name]: value
-        });
-        setError('');
+        setFormData({ ...formData, [e.target.name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
-        const result = await register(formData);
-
-        if (result.success) {
-            navigate(`/${formData.role}/dashboard`);
-        } else {
-            setError(result.error);
+        if (!formData.firstName || !formData.lastName || !formData.email ||
+            !formData.password || !formData.phoneNumber) {
+            return setError('All fields are required');
+        }
+        if (formData.password !== formData.confirmPassword) {
+            return setError('Passwords do not match');
+        }
+        if (formData.password.length < 6) {
+            return setError('Password must be at least 6 characters');
+        }
+        if (formData.role === 'admin') {
+            return setError('Admin accounts cannot be created here. Contact system administrator.');
         }
 
-        setLoading(false);
+        setLoading(true);
+        try {
+            const result = await register({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                password: formData.password,
+                phoneNumber: formData.phoneNumber,
+                role: formData.role,
+                isFaculty: formData.isFaculty
+            });
+
+            if (result.success) {
+                switch (formData.role) {
+                    case 'driver': navigate('/driver/dashboard'); break;
+                    case 'parent': navigate('/parent/tracking'); break;
+                    default: navigate('/student/dashboard');
+                }
+            } else {
+                setError(result.error || 'Registration failed');
+            }
+        } catch (err) {
+            setError('Registration failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <div className="login-container">
-            <div className="login-background">
-                <div className="login-pattern"></div>
-            </div>
+        <div style={{ minHeight: '100vh', background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <div style={{ background: '#1E293B', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '480px' }}>
 
-            <div className="login-content">
-                <div className="login-card">
-                    <div className="login-header">
-                        <div className="login-logo">
-                            <div className="logo-icon">🚌</div>
-                            <h1 className="logo-text">SwiftUET</h1>
-                        </div>
-                        <p className="login-subtitle">Create Your Account</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="login-form">
-                        {error && (
-                            <div className="alert alert-danger">
-                                <span>⚠️</span>
-                                {error}
-                            </div>
-                        )}
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
-                            <div className="form-group">
-                                <label htmlFor="firstName">First Name</label>
-                                <input
-                                    type="text"
-                                    id="firstName"
-                                    name="firstName"
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Ahmed"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="lastName">Last Name</label>
-                                <input
-                                    type="text"
-                                    id="lastName"
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Khan"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="email">Email Address</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                placeholder="your.email@uet.edu.pk"
-                                autoComplete="email"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                minLength="6"
-                                placeholder="At least 6 characters"
-                                autoComplete="new-password"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="phone">Phone Number</label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                required
-                                placeholder="+923001234567"
-                                pattern="^\+92\d{10}$"
-                            />
-                            <small style={{ color: 'var(--color-gray-600)', marginTop: 'var(--spacing-xs)', display: 'block' }}>
-                                Format: +92XXXXXXXXXX
-                            </small>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="role">Register As</label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="student">Student</option>
-                                <option value="driver">Driver</option>
-                                <option value="parent">Parent</option>
-                                <option value="admin">Administrator</option>
-                            </select>
-                        </div>
-
-                        {formData.role === 'student' && (
-                            <div className="form-group">
-                                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer' }}>
-                                    <input
-                                        type="checkbox"
-                                        name="isFaculty"
-                                        checked={formData.isFaculty}
-                                        onChange={handleChange}
-                                        style={{ width: 'auto', minHeight: 'auto' }}
-                                    />
-                                    <span>I am a faculty member</span>
-                                </label>
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            className="btn btn-primary btn-lg btn-block"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <div className="loading-spinner-small"></div>
-                                    Creating Account...
-                                </>
-                            ) : (
-                                'Create Account'
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="login-footer">
-                        <Link to="/login" className="login-link">Already have an account?</Link>
-                    </div>
-
-                    <div className="login-info">
-                        <p className="info-text">
-                            <span className="info-icon">🔒</span>
-                            Secure registration powered by SwiftUET
-                        </p>
-                    </div>
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    <div style={{ fontSize: '2rem' }}>🚌</div>
+                    <h1 style={{ color: '#F59E0B', margin: '0.5rem 0', fontSize: '1.8rem' }}>SwiftUET</h1>
+                    <p style={{ color: '#94A3B8', margin: 0 }}>Create Your Account</p>
                 </div>
 
-                <div className="login-features">
-                    <div className="feature-item">
-                        <div className="feature-icon">📍</div>
-                        <h3>Real-Time Tracking</h3>
-                        <p>Track your bus location live on the map</p>
+                {error && (
+                    <div style={{ background: '#450a0a', border: '1px solid #dc2626', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem', color: '#fca5a5', fontSize: '14px' }}>
+                        ⚠️ {error}
                     </div>
-                    <div className="feature-item">
-                        <div className="feature-icon">💺</div>
-                        <h3>Easy Seat Booking</h3>
-                        <p>Reserve your seat with a single tap</p>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                        <div>
+                            <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>First Name</label>
+                            <input name="firstName" value={formData.firstName} onChange={handleChange}
+                                placeholder="Ahmed" required
+                                style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
+                        </div>
+                        <div>
+                            <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Last Name</label>
+                            <input name="lastName" value={formData.lastName} onChange={handleChange}
+                                placeholder="Khan" required
+                                style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
+                        </div>
                     </div>
-                    <div className="feature-item">
-                        <div className="feature-icon">⚡</div>
-                        <h3>Instant Alerts</h3>
-                        <p>Get notified about delays and updates</p>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Email Address</label>
+                        <input name="email" type="email" value={formData.email} onChange={handleChange}
+                            placeholder="ahmed@uet.edu.pk" required
+                            style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
                     </div>
-                </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Phone Number</label>
+                        <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange}
+                            placeholder="+923001234567" required
+                            style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Password</label>
+                        <div style={{ position: 'relative' }}>
+                            <input name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange}
+                                placeholder="Min 6 characters" required
+                                style={{ width: '100%', padding: '10px 40px 10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '16px' }}>
+                                {showPassword ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Confirm Password</label>
+                        <input name="confirmPassword" type={showPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={handleChange}
+                            placeholder="Repeat your password" required
+                            style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }} />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ color: '#94A3B8', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Register As</label>
+                        <select name="role" value={formData.role} onChange={handleChange}
+                            style={{ width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: 'white', fontSize: '14px', boxSizing: 'border-box' }}>
+                            <option value="student">Student</option>
+                            <option value="driver">Driver</option>
+                            <option value="parent">Parent</option>
+                        </select>
+                        <p style={{ color: '#64748B', fontSize: '12px', margin: '4px 0 0' }}>Admin accounts are created by the system administrator only.</p>
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input type="checkbox" name="isFaculty" id="isFaculty" checked={formData.isFaculty} onChange={handleChange}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                        <label htmlFor="isFaculty" style={{ color: '#94A3B8', fontSize: '14px', cursor: 'pointer' }}>I am a faculty member</label>
+                    </div>
+
+                    <button type="submit" disabled={loading}
+                        style={{ width: '100%', padding: '12px', background: loading ? '#475569' : '#F59E0B', border: 'none', borderRadius: '8px', color: '#0F172A', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                        {loading ? 'Creating Account...' : 'Create Account'}
+                    </button>
+                </form>
+
+                <p style={{ textAlign: 'center', color: '#64748B', marginTop: '1.5rem', fontSize: '14px' }}>
+                    Already have an account?{' '}
+                    <Link to="/login" style={{ color: '#F59E0B', textDecoration: 'none' }}>Login here</Link>
+                </p>
             </div>
         </div>
     );

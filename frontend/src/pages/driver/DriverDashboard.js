@@ -1,98 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import api from '../../services/api';
 import './DriverDashboard.css';
 
-// Fix Leaflet default marker icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
 const DriverDashboard = () => {
-    const [currentTrip, setCurrentTrip] = useState(null);
-    const [students, setStudents] = useState([]);
-    const [nextStop, setNextStop] = useState(null);
+    const navigate = useNavigate();
+    const { logout, user } = useAuth();
+    const [todaySchedules, setTodaySchedules] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [holdProgress, setHoldProgress] = useState(0);
-    const [isHolding, setIsHolding] = useState(false);
+    const [pickingUp, setPickingUp] = useState({});
 
     useEffect(() => {
-        fetchTripData();
-        const interval = setInterval(fetchTripData, 30000); // Refresh every 30 seconds
+        fetchDriverSchedules();
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchDriverSchedules, 30000);
         return () => clearInterval(interval);
     }, []);
 
-    const fetchTripData = async () => {
+    const fetchDriverSchedules = async () => {
         try {
             setLoading(true);
-            const [tripRes, studentsRes] = await Promise.all([
-                axios.get('/api/driver/current-trip'),
-                axios.get('/api/driver/students')
-            ]);
 
-            setCurrentTrip(tripRes.data);
-            setStudents(studentsRes.data);
+            // Get today's date
+            const today = new Date().toISOString().split('T')[0];
 
-            // Find next stop
-            if (tripRes.data && tripRes.data.route && tripRes.data.route.stops) {
-                const nextUnvisited = tripRes.data.route.stops.find(stop => !stop.visited);
-                setNextStop(nextUnvisited);
-            }
+            // Fetch all schedules for today
+            const schedulesRes = await api.get(`/schedules?date=${today}`);
+            const allSchedules = schedulesRes.data.data || [];
+
+            // For each schedule, fetch bookings
+            const schedulesWithBookings = await Promise.all(
+                allSchedules.map(async (schedule) => {
+                    try {
+                        const bookingsRes = await api.get(`/bookings/schedule/${schedule._id}`);
+                        const bookings = bookingsRes.data.data || [];
+
+                        // Transform bookings to include student details
+                        const students = bookings.map(booking => ({
+                            bookingId: booking._id,
+                            studentId: booking.studentId?._id || booking.studentId,
+                            name: booking.studentId?.firstName && booking.studentId?.lastName
+                                ? `${booking.studentId.firstName} ${booking.studentId.lastName}`
+                                : booking.studentName || 'Student',
+                            seatNumber: booking.seatNumber,
+                            status: booking.status
+                        }));
+
+                        return {
+                            ...schedule,
+                            students,
+                            pickedUpCount: students.filter(s => s.status === 'picked-up').length,
+                            totalCount: students.length
+                        };
+                    } catch (error) {
+                        console.error('Error fetching bookings for schedule:', error);
+                        return {
+                            ...schedule,
+                            students: [],
+                            pickedUpCount: 0,
+                            totalCount: 0
+                        };
+                    }
+                })
+            );
+
+            // Filter schedules that have bookings
+            const schedulesWithStudents = schedulesWithBookings.filter(s => s.students.length > 0);
+
+            setTodaySchedules(schedulesWithStudents);
         } catch (error) {
-            console.error('Error fetching trip data:', error);
+            console.error('Error fetching driver schedules:', error);
+            setTodaySchedules([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleHoldStart = () => {
-        setIsHolding(true);
-        setHoldProgress(0);
-
-        const interval = setInterval(() => {
-            setHoldProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    handlePickupComplete();
-                    return 100;
-                }
-                return prev + 2;
-            });
-        }, 30);
-    };
-
-    const handleHoldEnd = () => {
-        setIsHolding(false);
-        setHoldProgress(0);
-    };
-
-    const handlePickupComplete = async () => {
+    const handleMarkPickup = async (bookingId, scheduleIndex) => {
         try {
-            await axios.post('/api/driver/mark-pickup', {
-                tripId: currentTrip._id,
-                stopId: nextStop._id
-            });
+            setPickingUp(prev => ({ ...prev, [bookingId]: true }));
+
+            await api.patch(`/bookings/${bookingId}/pickup`);
+
+            // Refresh schedules to show updated status
+            await fetchDriverSchedules();
 
             // Show success feedback
-            setIsHolding(false);
-            setHoldProgress(0);
-
-            // Refresh data
-            fetchTripData();
+            alert('✅ Student marked as picked up!');
         } catch (error) {
             console.error('Error marking pickup:', error);
-            setIsHolding(false);
-            setHoldProgress(0);
+            alert('❌ Failed to mark pickup. Please try again.');
+        } finally {
+            setPickingUp(prev => ({ ...prev, [bookingId]: false }));
         }
     };
 
-    const getRemainingStudents = () => {
-        return students.filter(s => s.status !== 'picked_up').length;
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     if (loading) {
@@ -100,19 +106,25 @@ const DriverDashboard = () => {
             <div className="driver-dashboard dark-mode">
                 <div className="loading">
                     <div className="loading-spinner"></div>
-                    <p>Loading your trip...</p>
+                    <p>Loading your schedules...</p>
                 </div>
             </div>
         );
     }
 
-    if (!currentTrip) {
+    if (todaySchedules.length === 0) {
         return (
             <div className="driver-dashboard dark-mode">
+                {/* Logout Button */}
+                <button className="driver-logout-btn" onClick={handleLogout} title="Logout">
+                    <span className="logout-icon">🚪</span>
+                    <span className="logout-text">Logout</span>
+                </button>
+
                 <div className="empty-state">
                     <div className="empty-state-icon">🚌</div>
-                    <h2>No Active Trip</h2>
-                    <p>You don't have any scheduled trips at the moment.</p>
+                    <h2>No Active Trips</h2>
+                    <p>You don't have any scheduled trips with bookings for today.</p>
                 </div>
             </div>
         );
@@ -120,137 +132,154 @@ const DriverDashboard = () => {
 
     return (
         <div className="driver-dashboard dark-mode">
-            {/* Status Bar */}
-            <div className="status-bar">
-                <div className="status-item">
-                    <span className="status-icon">🚌</span>
-                    <div className="status-info">
-                        <span className="status-label">Route</span>
-                        <span className="status-value">{currentTrip.route?.name}</span>
+            {/* Logout Button */}
+            <button className="driver-logout-btn" onClick={handleLogout} title="Logout">
+                <span className="logout-icon">🚪</span>
+                <span className="logout-text">Logout</span>
+            </button>
+
+            {/* Driver Header */}
+            <div className="driver-header">
+                <div className="driver-info">
+                    <div className="driver-avatar">
+                        {user?.firstName?.charAt(0).toUpperCase() || 'D'}
+                    </div>
+                    <div className="driver-details">
+                        <h1 className="driver-name">
+                            {user?.firstName && user?.lastName
+                                ? `${user.firstName} ${user.lastName}`
+                                : 'Driver'}
+                        </h1>
+                        <p className="driver-role">Bus Driver</p>
                     </div>
                 </div>
-                <div className="status-item">
-                    <span className="status-icon">📍</span>
-                    <div className="status-info">
-                        <span className="status-label">Next Stop</span>
-                        <span className="status-value">{nextStop?.name || 'Final Destination'}</span>
-                    </div>
-                </div>
-                <div className="status-item">
-                    <span className="status-icon">👥</span>
-                    <div className="status-info">
-                        <span className="status-label">Remaining</span>
-                        <span className="status-value-large">{getRemainingStudents()}</span>
-                    </div>
-                </div>
+                <button className="refresh-btn" onClick={fetchDriverSchedules}>
+                    <span className="refresh-icon">🔄</span>
+                    Refresh
+                </button>
             </div>
 
-            {/* Map Section */}
-            <div className="map-section">
-                <MapContainer
-                    center={[31.5204, 74.3587]}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                    zoomControl={true}
-                >
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; OpenStreetMap contributors'
-                    />
-                    {currentTrip.route?.stops && (
-                        <>
-                            <Polyline
-                                positions={currentTrip.route.stops.map(stop => [stop.latitude, stop.longitude])}
-                                color="#06B6D4"
-                                weight={5}
-                            />
-                            {currentTrip.route.stops.map((stop, index) => (
-                                <Marker
-                                    key={index}
-                                    position={[stop.latitude, stop.longitude]}
-                                />
-                            ))}
-                        </>
-                    )}
-                </MapContainer>
-            </div>
+            {/* Schedules List */}
+            <div className="schedules-container">
+                {todaySchedules.map((schedule, scheduleIndex) => (
+                    <div key={schedule._id} className="schedule-card">
+                        {/* Schedule Header */}
+                        <div className="schedule-header">
+                            <div className="schedule-info">
+                                <h2 className="schedule-route">
+                                    <span className="route-icon">🚌</span>
+                                    {schedule.route || 'Route'}
+                                </h2>
+                                <div className="schedule-meta">
+                                    <span className="meta-item">
+                                        <span className="meta-icon">🚍</span>
+                                        Bus {schedule.busId?.busNumber || 'N/A'}
+                                    </span>
+                                    <span className="meta-item">
+                                        <span className="meta-icon">🕐</span>
+                                        {schedule.departureTime} - {schedule.arrivalTime}
+                                    </span>
+                                    <span className="meta-item">
+                                        <span className="meta-icon">📅</span>
+                                        {schedule.date}
+                                    </span>
+                                </div>
+                            </div>
 
-            {/* Student Manifest */}
-            <div className="manifest-section">
-                <h2 className="manifest-title">
-                    <span className="manifest-icon">📋</span>
-                    Student Manifest
-                </h2>
-                <div className="student-list">
-                    {students.map(student => (
-                        <div
-                            key={student._id}
-                            className={`student-item ${student.status === 'picked_up' ? 'picked-up' : ''}`}
-                        >
-                            <div className="student-avatar">
-                                {student.name?.charAt(0).toUpperCase() || '👤'}
+                            {/* Progress Counter */}
+                            <div className="progress-counter">
+                                <div className="counter-circle">
+                                    <span className="counter-value">
+                                        {schedule.pickedUpCount}/{schedule.totalCount}
+                                    </span>
+                                </div>
+                                <p className="counter-label">Picked Up</p>
                             </div>
-                            <div className="student-info">
-                                <h4 className="student-name">{student.name}</h4>
-                                <p className="student-details">
-                                    <span className="detail-icon">💺</span>
-                                    Seat {student.seatNumber}
-                                    <span className="detail-separator">•</span>
-                                    <span className="detail-icon">📍</span>
-                                    {student.pickupLocation}
-                                </p>
-                            </div>
-                            {student.status === 'picked_up' ? (
-                                <div className="status-badge picked-up">
-                                    <span className="badge-icon">✓</span>
-                                    Picked Up
+                        </div>
+
+                        {/* Students List */}
+                        <div className="students-list">
+                            <h3 className="students-title">
+                                <span className="title-icon">👥</span>
+                                Student Manifest ({schedule.students.length})
+                            </h3>
+
+                            {schedule.students.length > 0 ? (
+                                <div className="students-grid">
+                                    {schedule.students.map((student) => (
+                                        <div
+                                            key={student.bookingId}
+                                            className={`student-card ${student.status === 'picked-up' ? 'picked-up' : ''}`}
+                                        >
+                                            <div className="student-info">
+                                                <div className="student-avatar">
+                                                    {student.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="student-details">
+                                                    <h4 className="student-name">{student.name}</h4>
+                                                    <p className="student-seat">
+                                                        <span className="seat-icon">💺</span>
+                                                        Seat {student.seatNumber}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="student-actions">
+                                                {student.status === 'picked-up' ? (
+                                                    <div className="status-badge picked-up">
+                                                        <span className="badge-icon">✓</span>
+                                                        Picked Up
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        className="pickup-btn"
+                                                        onClick={() => handleMarkPickup(student.bookingId, scheduleIndex)}
+                                                        disabled={pickingUp[student.bookingId]}
+                                                    >
+                                                        {pickingUp[student.bookingId] ? (
+                                                            <>
+                                                                <span className="btn-spinner"></span>
+                                                                Marking...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <span className="btn-icon">✓</span>
+                                                                Mark as Picked Up
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             ) : (
-                                <div className="status-badge pending">
-                                    <span className="badge-icon">⏱</span>
-                                    Waiting
+                                <div className="no-students">
+                                    <p>No students booked for this schedule</p>
                                 </div>
                             )}
                         </div>
-                    ))}
-                </div>
-            </div>
 
-            {/* Safety Action Button */}
-            <div className="action-section">
-                <div className="action-instructions">
-                    <span className="instruction-icon">👆</span>
-                    <p>Hold the button below to confirm student pickup</p>
-                </div>
-                <button
-                    className={`hold-button ${isHolding ? 'holding' : ''} ${holdProgress === 100 ? 'complete' : ''}`}
-                    onMouseDown={handleHoldStart}
-                    onMouseUp={handleHoldEnd}
-                    onMouseLeave={handleHoldEnd}
-                    onTouchStart={handleHoldStart}
-                    onTouchEnd={handleHoldEnd}
-                    disabled={getRemainingStudents() === 0}
-                >
-                    <div className="hold-progress" style={{ width: `${holdProgress}%` }}></div>
-                    <div className="hold-content">
-                        {holdProgress === 100 ? (
-                            <>
-                                <span className="hold-icon">✓</span>
-                                <span className="hold-text">Pickup Confirmed!</span>
-                            </>
-                        ) : isHolding ? (
-                            <>
-                                <span className="hold-icon">⏱</span>
-                                <span className="hold-text">Hold to Confirm...</span>
-                            </>
-                        ) : (
-                            <>
-                                <span className="hold-icon">👆</span>
-                                <span className="hold-text">Mark as Picked Up</span>
-                            </>
+                        {/* Schedule Footer */}
+                        {schedule.students.length > 0 && (
+                            <div className="schedule-footer">
+                                {schedule.pickedUpCount === schedule.totalCount ? (
+                                    <div className="completion-message">
+                                        <span className="completion-icon">🎉</span>
+                                        <span className="completion-text">All students picked up!</span>
+                                    </div>
+                                ) : (
+                                    <div className="remaining-message">
+                                        <span className="remaining-icon">⏱</span>
+                                        <span className="remaining-text">
+                                            {schedule.totalCount - schedule.pickedUpCount} student(s) remaining
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
-                </button>
+                ))}
             </div>
         </div>
     );

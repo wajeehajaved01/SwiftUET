@@ -51,6 +51,16 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/student/bookings"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <AuthenticatedLayout>
+                                        <StudentDashboard />
+                                    </AuthenticatedLayout>
+                                </ProtectedRoute>
+                            }
+                        />
 
                         {/* Protected Driver routes */}
                         <Route

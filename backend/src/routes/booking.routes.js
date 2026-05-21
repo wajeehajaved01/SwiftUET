@@ -18,4 +18,7 @@ router.get('/', authorize('admin'), bookingController.getAllBookings);
 // Admin and Driver routes
 router.get('/schedule/:scheduleId', authorize('admin', 'driver'), bookingController.getBookingsBySchedule);
 
+// Driver routes
+router.patch('/:id/pickup', authorize('driver', 'admin'), bookingController.markAsPickedUp);
+
 module.exports = router;

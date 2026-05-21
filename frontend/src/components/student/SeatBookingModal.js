@@ -1,207 +1,219 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import './SeatBookingModal.css';
 
 const SeatBookingModal = ({ schedule, onClose, onComplete }) => {
-    const [seats, setSeats] = useState([]);
+    const [bookedSeats, setBookedSeats] = useState([]);
     const [selectedSeat, setSelectedSeat] = useState(null);
     const [loading, setLoading] = useState(true);
     const [booking, setBooking] = useState(false);
-    const [error, setError] = useState('');
-
-    // Bus layout configuration
-    const ROWS = 10;
-    const SEATS_PER_ROW = 4;
-    const FACULTY_ROWS = 3; // First 3 rows reserved for faculty
 
     useEffect(() => {
-        fetchSeatAvailability();
+        fetchBookedSeats();
     }, [schedule]);
 
-    const fetchSeatAvailability = async () => {
+    const fetchBookedSeats = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`/api/bookings/schedule/${schedule._id}/seats`);
-            setSeats(response.data);
+            const response = await api.get(`/bookings/schedule/${schedule._id}`);
+            const seats = response.data.data || response.data || [];
+            // Extract just the seat numbers
+            const seatNumbers = seats.map(s => s.seatNumber || s);
+            setBookedSeats(seatNumbers);
         } catch (error) {
-            console.error('Error fetching seats:', error);
-            setError('Failed to load seat availability');
+            console.error('Error fetching booked seats:', error);
+            setBookedSeats([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const generateSeatLayout = () => {
-        const layout = [];
-        for (let row = 1; row <= ROWS; row++) {
-            const rowSeats = [];
-            for (let col = 1; col <= SEATS_PER_ROW; col++) {
-                const seatNumber = `${row}${String.fromCharCode(64 + col)}`; // 1A, 1B, etc.
-                const isFacultyRow = row <= FACULTY_ROWS;
-                const isBooked = seats.some(seat => seat.seatNumber === seatNumber && seat.status === 'confirmed');
-                const isAisle = col === 2; // Aisle after 2nd seat
+    const generateSeats = () => {
+        const seats = [];
+        const rows = 10;
+        const seatsPerRow = 4;
+        const seatLabels = ['A', 'B', 'C', 'D'];
 
-                rowSeats.push({
+        for (let row = 1; row <= rows; row++) {
+            for (let col = 0; col < seatsPerRow; col++) {
+                const seatNumber = `${row}${seatLabels[col]}`;
+                const isFacultyRow = row <= 3;
+                const isBooked = bookedSeats.includes(seatNumber);
+                const isSelected = selectedSeat === seatNumber;
+
+                seats.push({
                     number: seatNumber,
                     row,
                     col,
                     isFacultyRow,
                     isBooked,
-                    isAisle
+                    isSelected,
+                    isAvailable: !isFacultyRow && !isBooked
                 });
             }
-            layout.push(rowSeats);
         }
-        return layout;
+
+        return seats;
     };
 
     const handleSeatClick = (seat) => {
-        if (seat.isFacultyRow) {
-            setError('This seat is reserved for faculty members only');
-            return;
+        if (seat.isFacultyRow || seat.isBooked) {
+            return; // Do nothing for faculty or booked seats
         }
-        if (seat.isBooked) {
-            setError('This seat is already booked');
-            return;
-        }
-        setError('');
+
         setSelectedSeat(seat.number);
     };
 
     const handleConfirmBooking = async () => {
         if (!selectedSeat) {
-            setError('Please select a seat');
+            alert('Please select a seat first');
             return;
         }
 
         try {
             setBooking(true);
-            setError('');
-            await axios.post('/api/bookings', {
+            await api.post('/bookings', {
                 scheduleId: schedule._id,
                 seatNumber: selectedSeat
             });
+
+            alert(`✅ Seat ${selectedSeat} booked successfully!`);
             onComplete();
         } catch (error) {
-            setError(error.response?.data?.message || 'Failed to book seat');
+            console.error('Error booking seat:', error);
+            const errorMessage = error.response?.data?.error || 'Failed to book seat. Please try again.';
+            alert(`❌ ${errorMessage}`);
         } finally {
             setBooking(false);
         }
     };
 
-    const seatLayout = generateSeatLayout();
+    const seats = generateSeats();
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal seat-booking-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content seat-booking-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <div>
-                        <h2 className="modal-title">Select Your Seat</h2>
-                        <p className="modal-subtitle">{schedule.route?.name}</p>
-                    </div>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+                    <h2>Select Your Seat</h2>
+                    <button className="modal-close" onClick={onClose}>
+                        ✕
+                    </button>
                 </div>
 
                 <div className="modal-body">
-                    {error && (
-                        <div className="alert alert-danger">
-                            <span>⚠️</span>
-                            {error}
+                    {/* Schedule Info */}
+                    <div className="schedule-info-banner">
+                        <div className="info-item">
+                            <span className="info-icon">🚌</span>
+                            <span className="info-text">Bus {schedule.busId?.busNumber || 'N/A'}</span>
                         </div>
-                    )}
+                        <div className="info-item">
+                            <span className="info-icon">📍</span>
+                            <span className="info-text">{schedule.route || 'Route'}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="info-icon">🕐</span>
+                            <span className="info-text">{schedule.departureTime}</span>
+                        </div>
+                    </div>
 
+                    {/* Legend */}
+                    <div className="seat-legend">
+                        <div className="legend-item">
+                            <div className="legend-box available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div className="legend-item">
+                            <div className="legend-box booked"></div>
+                            <span>Booked</span>
+                        </div>
+                        <div className="legend-item">
+                            <div className="legend-box faculty"></div>
+                            <span>Faculty Only</span>
+                        </div>
+                        <div className="legend-item">
+                            <div className="legend-box selected"></div>
+                            <span>Selected</span>
+                        </div>
+                    </div>
+
+                    {/* Bus Layout */}
                     {loading ? (
-                        <div className="loading">
+                        <div className="loading-seats">
                             <div className="loading-spinner"></div>
-                            <p>Loading seat availability...</p>
+                            <p>Loading seats...</p>
                         </div>
                     ) : (
-                        <>
-                            {/* Bus Front Indicator */}
+                        <div className="bus-layout">
                             <div className="bus-front">
-                                <div className="driver-section">
-                                    <span className="driver-icon">🚗</span>
-                                    <span className="driver-label">Driver</span>
-                                </div>
+                                <div className="driver-seat">🚗 Driver</div>
                             </div>
 
-                            {/* Seat Grid */}
-                            <div className="seat-grid">
-                                {seatLayout.map((row, rowIndex) => (
-                                    <div key={rowIndex} className="seat-row">
-                                        <div className="row-label">Row {rowIndex + 1}</div>
-                                        <div className="seats-container">
-                                            {row.map((seat, seatIndex) => (
-                                                <React.Fragment key={seat.number}>
+                            <div className="seats-grid">
+                                {[...Array(10)].map((_, rowIndex) => {
+                                    const rowNumber = rowIndex + 1;
+                                    const rowSeats = seats.filter(s => s.row === rowNumber);
+                                    const isFacultyRow = rowNumber <= 3;
+
+                                    return (
+                                        <div key={rowNumber} className="seat-row">
+                                            {isFacultyRow && (
+                                                <div className="faculty-label">Faculty Only</div>
+                                            )}
+                                            <div className="row-seats">
+                                                {rowSeats.slice(0, 2).map(seat => (
                                                     <button
-                                                        className={`seat ${seat.isFacultyRow ? 'seat-faculty' : ''
-                                                            } ${seat.isBooked ? 'seat-booked' : ''
-                                                            } ${selectedSeat === seat.number ? 'seat-selected' : ''
-                                                            } ${!seat.isFacultyRow && !seat.isBooked ? 'seat-available' : ''
+                                                        key={seat.number}
+                                                        className={`seat ${seat.isFacultyRow ? 'faculty' :
+                                                                seat.isBooked ? 'booked' :
+                                                                    seat.isSelected ? 'selected' :
+                                                                        'available'
                                                             }`}
                                                         onClick={() => handleSeatClick(seat)}
                                                         disabled={seat.isFacultyRow || seat.isBooked}
                                                         title={
-                                                            seat.isFacultyRow
-                                                                ? 'Faculty Only'
-                                                                : seat.isBooked
-                                                                    ? 'Already Booked'
-                                                                    : `Seat ${seat.number}`
+                                                            seat.isFacultyRow ? 'Faculty Only' :
+                                                                seat.isBooked ? 'Already Booked' :
+                                                                    `Seat ${seat.number}`
                                                         }
                                                     >
-                                                        <span className="seat-icon">💺</span>
-                                                        <span className="seat-number">{seat.number}</span>
-                                                        {seat.isFacultyRow && (
-                                                            <span className="faculty-badge">Faculty</span>
-                                                        )}
+                                                        {seat.number}
                                                     </button>
-                                                    {seat.isAisle && <div className="aisle"></div>}
-                                                </React.Fragment>
-                                            ))}
+                                                ))}
+                                                <div className="aisle"></div>
+                                                {rowSeats.slice(2, 4).map(seat => (
+                                                    <button
+                                                        key={seat.number}
+                                                        className={`seat ${seat.isFacultyRow ? 'faculty' :
+                                                                seat.isBooked ? 'booked' :
+                                                                    seat.isSelected ? 'selected' :
+                                                                        'available'
+                                                            }`}
+                                                        onClick={() => handleSeatClick(seat)}
+                                                        disabled={seat.isFacultyRow || seat.isBooked}
+                                                        title={
+                                                            seat.isFacultyRow ? 'Faculty Only' :
+                                                                seat.isBooked ? 'Already Booked' :
+                                                                    `Seat ${seat.number}`
+                                                        }
+                                                    >
+                                                        {seat.number}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
+                        </div>
+                    )}
 
-                            {/* Legend */}
-                            <div className="seat-legend">
-                                <div className="legend-item">
-                                    <div className="legend-icon seat-available">💺</div>
-                                    <span>Available</span>
-                                </div>
-                                <div className="legend-item">
-                                    <div className="legend-icon seat-selected">💺</div>
-                                    <span>Selected</span>
-                                </div>
-                                <div className="legend-item">
-                                    <div className="legend-icon seat-booked">💺</div>
-                                    <span>Booked</span>
-                                </div>
-                                <div className="legend-item">
-                                    <div className="legend-icon seat-faculty">💺</div>
-                                    <span>Faculty Only</span>
-                                </div>
-                            </div>
-
-                            {/* Selected Seat Info */}
-                            {selectedSeat && (
-                                <div className="selected-seat-info">
-                                    <div className="info-icon">✓</div>
-                                    <div className="info-content">
-                                        <h4>Selected Seat: {selectedSeat}</h4>
-                                        <p>
-                                            Departure: {new Date(schedule.departureTime).toLocaleString('en-US', {
-                                                weekday: 'short',
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </>
+                    {/* Selected Seat Info */}
+                    {selectedSeat && (
+                        <div className="selected-seat-info">
+                            <span className="selected-icon">✓</span>
+                            <span className="selected-text">You selected seat <strong>{selectedSeat}</strong></span>
+                        </div>
                     )}
                 </div>
 
@@ -210,18 +222,11 @@ const SeatBookingModal = ({ schedule, onClose, onComplete }) => {
                         Cancel
                     </button>
                     <button
-                        className="btn btn-primary btn-lg"
+                        className="btn btn-primary"
                         onClick={handleConfirmBooking}
                         disabled={!selectedSeat || booking}
                     >
-                        {booking ? (
-                            <>
-                                <div className="loading-spinner-small"></div>
-                                Booking...
-                            </>
-                        ) : (
-                            'Confirm Booking'
-                        )}
+                        {booking ? 'Booking...' : 'Confirm Booking'}
                     </button>
                 </div>
             </div>

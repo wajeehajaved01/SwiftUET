@@ -6,8 +6,7 @@ import './Login.css';
 const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
-        password: '',
-        role: 'student'
+        password: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -27,9 +26,9 @@ const Login = () => {
         setLoading(true);
 
         try {
-            await login(formData.email, formData.password, formData.role);
+            await login(formData.email, formData.password);
 
-            // Navigate based on role
+            // Navigate based on role from backend response
             const user = JSON.parse(localStorage.getItem('user'));
             switch (user.role) {
                 case 'admin':
@@ -45,7 +44,7 @@ const Login = () => {
                     navigate('/student/dashboard');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please try again.');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -101,22 +100,6 @@ const Login = () => {
                                 required
                                 autoComplete="current-password"
                             />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="role">Login As</label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="student">Student</option>
-                                <option value="driver">Driver</option>
-                                <option value="admin">Administrator</option>
-                                <option value="parent">Parent</option>
-                            </select>
                         </div>
 
                         <button

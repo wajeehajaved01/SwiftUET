@@ -38,6 +38,10 @@ const scheduleSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    facultyRowsLocked: {
+        type: Boolean,
+        default: true
+    },
     actualDepartureTime: Date,
     actualArrivalTime: Date
 }, {

@@ -42,9 +42,9 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = async (email, password, role) => {
+    const login = async (email, password) => {
         try {
-            const response = await api.post('/auth/login', { email, password, role });
+            const response = await api.post('/auth/login', { email, password });
 
             // Extract token and user from response.data.data
             const token = response.data.data.token;
@@ -62,10 +62,7 @@ export const AuthProvider = ({ children }) => {
 
             return { success: true };
         } catch (error) {
-            return {
-                success: false,
-                error: error.response?.data?.error || 'Login failed'
-            };
+            throw error;
         }
     };
 

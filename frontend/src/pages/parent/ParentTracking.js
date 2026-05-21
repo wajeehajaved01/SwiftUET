@@ -1,77 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import api from '../../services/api';
 import './ParentTracking.css';
 
-// Fix Leaflet default marker icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
 const ParentTracking = () => {
-    const [studentData, setStudentData] = useState(null);
-    const [busLocation, setBusLocation] = useState(null);
-    const [tripStatus, setTripStatus] = useState('waiting'); // waiting, in_transit, arrived
-    const [notifications, setNotifications] = useState([]);
+    const navigate = useNavigate();
+    const { logout, user } = useAuth();
+    const [recentBookings, setRecentBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchTrackingData();
-        // Poll for updates every 15 seconds
-        const interval = setInterval(fetchTrackingData, 15000);
+        fetchRecentBookings();
+        // Auto-refresh every 30 seconds
+        const interval = setInterval(fetchRecentBookings, 30000);
         return () => clearInterval(interval);
     }, []);
 
-    const fetchTrackingData = async () => {
+    const fetchRecentBookings = async () => {
         try {
             setLoading(true);
-            const [studentRes, locationRes, notificationsRes] = await Promise.all([
-                axios.get('/api/parent/student-info'),
-                axios.get('/api/parent/bus-location'),
-                axios.get('/api/parent/notifications')
-            ]);
-
-            setStudentData(studentRes.data);
-            setBusLocation(locationRes.data);
-            setNotifications(notificationsRes.data);
-            setTripStatus(studentRes.data.status || 'waiting');
+            const response = await api.get('/bookings/recent');
+            const bookings = response.data.data || [];
+            setRecentBookings(bookings);
         } catch (error) {
-            console.error('Error fetching tracking data:', error);
+            console.error('Error fetching bookings:', error);
+            setRecentBookings([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const getStatusInfo = () => {
-        const statuses = {
-            waiting: {
-                label: 'Waiting to Board',
-                icon: '⏱️',
-                color: 'warning',
-                description: 'Your child is waiting for the bus to arrive'
-            },
-            in_transit: {
-                label: 'In Transit',
-                icon: '🚌',
-                color: 'info',
-                description: 'Your child is safely on the bus'
-            },
-            arrived: {
-                label: 'Safely Arrived',
-                icon: '✓',
-                color: 'success',
-                description: 'Your child has arrived at the destination'
-            }
-        };
-        return statuses[tripStatus] || statuses.waiting;
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
-    const statusInfo = getStatusInfo();
+    const getStudentName = (booking) => {
+        if (booking?.studentId?.firstName && booking?.studentId?.lastName) {
+            return `${booking.studentId.firstName} ${booking.studentId.lastName}`;
+        }
+        if (booking?.studentName) {
+            return booking.studentName;
+        }
+        return 'Student';
+    };
+
+    const getStatusBadge = (status) => {
+        const badges = {
+            'booked': { class: 'badge-success', text: 'Booked', icon: '✓' },
+            'picked-up': { class: 'badge-info', text: 'Picked Up', icon: '🚌' },
+            'cancelled': { class: 'badge-danger', text: 'Cancelled', icon: '✕' },
+            'waiting': { class: 'badge-warning', text: 'Waiting', icon: '⏱' }
+        };
+        return badges[status] || badges['booked'];
+    };
+
+    const formatDateTime = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     if (loading) {
         return (
@@ -86,218 +80,139 @@ const ParentTracking = () => {
 
     return (
         <div className="parent-tracking">
+            {/* Logout Button */}
+            <button className="parent-logout-btn" onClick={handleLogout} title="Logout">
+                <span className="logout-icon">🚪</span>
+                <span className="logout-text">Logout</span>
+            </button>
+
             {/* Header */}
-            <div className="tracking-header">
-                <div className="header-content">
-                    <h1 className="tracking-title">
-                        <span className="title-icon">👨‍👩‍👧</span>
-                        Parent Tracking Portal
-                    </h1>
-                    <p className="tracking-subtitle">Real-time updates for your child's journey</p>
-                </div>
-                <div className="student-badge">
-                    <div className="student-avatar">
-                        {studentData?.name?.charAt(0).toUpperCase() || '👤'}
+            <div className="parent-header">
+                <div className="parent-info">
+                    <div className="parent-avatar">
+                        {user?.firstName?.charAt(0).toUpperCase() || 'P'}
                     </div>
-                    <div className="student-info">
-                        <h3 className="student-name">{studentData?.name || 'Student'}</h3>
-                        <p className="student-details">
-                            {studentData?.route?.name} • Seat {studentData?.seatNumber}
-                        </p>
+                    <div className="parent-details">
+                        <h1 className="parent-name">
+                            {user?.firstName && user?.lastName
+                                ? `${user.firstName} ${user.lastName}`
+                                : 'Parent'}
+                        </h1>
+                        <p className="parent-role">Parent Portal - Recent Activity</p>
                     </div>
                 </div>
+                <button className="refresh-btn" onClick={fetchRecentBookings}>
+                    <span className="refresh-icon">🔄</span>
+                    Refresh
+                </button>
             </div>
 
-            {/* Status Stepper */}
-            <div className="status-stepper">
-                <div className={`step ${tripStatus === 'waiting' || tripStatus === 'in_transit' || tripStatus === 'arrived' ? 'active' : ''} ${tripStatus === 'in_transit' || tripStatus === 'arrived' ? 'completed' : ''}`}>
-                    <div className="step-icon">⏱️</div>
-                    <div className="step-content">
-                        <h4 className="step-title">Waiting to Board</h4>
-                        <p className="step-time">
-                            {notifications.find(n => n.type === 'waiting')?.timestamp || 'Pending'}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="step-connector"></div>
-
-                <div className={`step ${tripStatus === 'in_transit' || tripStatus === 'arrived' ? 'active' : ''} ${tripStatus === 'arrived' ? 'completed' : ''}`}>
-                    <div className="step-icon">🚌</div>
-                    <div className="step-content">
-                        <h4 className="step-title">In Transit</h4>
-                        <p className="step-time">
-                            {notifications.find(n => n.type === 'boarded')?.timestamp || 'Not yet'}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="step-connector"></div>
-
-                <div className={`step ${tripStatus === 'arrived' ? 'active completed' : ''}`}>
-                    <div className="step-icon">✓</div>
-                    <div className="step-content">
-                        <h4 className="step-title">Safely Arrived</h4>
-                        <p className="step-time">
-                            {notifications.find(n => n.type === 'arrived')?.timestamp || 'Not yet'}
-                        </p>
-                    </div>
-                </div>
+            {/* Auto-update indicator */}
+            <div className="auto-update-banner">
+                <span className="update-icon">🕐</span>
+                <span className="update-text">Auto-updates every 30 seconds</span>
             </div>
 
-            {/* Current Status Card */}
-            <div className="current-status-card">
-                <div className={`status-indicator status-${statusInfo.color}`}>
-                    <div className="status-icon-large">{statusInfo.icon}</div>
-                    <div className="status-content">
-                        <h2 className="status-label">{statusInfo.label}</h2>
-                        <p className="status-description">{statusInfo.description}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="tracking-grid">
-                {/* Live Map */}
-                <div className="card map-card">
-                    <div className="card-header">
-                        <h2 className="card-title">
-                            <span className="section-icon">📍</span>
-                            Live Bus Location
-                        </h2>
-                        <button className="btn btn-secondary btn-sm" onClick={fetchTrackingData}>
-                            <span className="btn-icon">🔄</span>
-                            Refresh
-                        </button>
-                    </div>
-                    <div className="card-body">
-                        <div className="map-container">
-                            {busLocation ? (
-                                <MapContainer
-                                    center={[busLocation.latitude, busLocation.longitude]}
-                                    zoom={14}
-                                    style={{ height: '400px', width: '100%' }}
-                                >
-                                    <TileLayer
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                        attribution='&copy; OpenStreetMap contributors'
-                                    />
-                                    <Marker position={[busLocation.latitude, busLocation.longitude]} />
-                                    {studentData?.route?.stops && (
-                                        <Polyline
-                                            positions={studentData.route.stops.map(stop => [stop.latitude, stop.longitude])}
-                                            color="var(--color-accent-teal)"
-                                            weight={4}
-                                        />
-                                    )}
-                                </MapContainer>
-                            ) : (
-                                <div className="empty-state">
-                                    <div className="empty-state-icon">🗺️</div>
-                                    <p>Bus location not available</p>
-                                </div>
-                            )}
-                            <div className="map-info">
-                                <div className="info-item">
-                                    <span className="info-label">Last Updated:</span>
-                                    <span className="info-value">
-                                        {busLocation ? new Date(busLocation.timestamp).toLocaleTimeString() : 'N/A'}
-                                    </span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Speed:</span>
-                                    <span className="info-value">{busLocation?.speed || 0} km/h</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            {/* Recent Bookings */}
+            <div className="bookings-container">
+                <div className="bookings-header">
+                    <h2 className="bookings-title">
+                        <span className="title-icon">🎫</span>
+                        Recent Bookings ({recentBookings.length})
+                    </h2>
+                    <p className="bookings-subtitle">
+                        Showing the latest 10 bookings from all students
+                    </p>
                 </div>
 
-                {/* Notification Log */}
-                <div className="card notifications-card">
-                    <div className="card-header">
-                        <h2 className="card-title">
-                            <span className="section-icon">🔔</span>
-                            Notification Log
-                        </h2>
-                    </div>
-                    <div className="card-body">
-                        {notifications.length > 0 ? (
-                            <div className="notifications-list">
-                                {notifications.map((notification, index) => (
-                                    <div key={index} className="notification-item">
-                                        <div className="notification-icon">
-                                            {notification.type === 'boarded' ? '🚌' :
-                                                notification.type === 'arrived' ? '✓' :
-                                                    notification.type === 'delay' ? '⚠️' : '📢'}
+                {recentBookings.length > 0 ? (
+                    <div className="bookings-grid">
+                        {recentBookings.map((booking) => {
+                            const statusBadge = getStatusBadge(booking.status);
+                            return (
+                                <div key={booking._id} className={`booking-card ${booking.status}`}>
+                                    <div className="booking-card-header">
+                                        <div className="student-info">
+                                            <div className="student-avatar-small">
+                                                {getStudentName(booking).charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="student-details-small">
+                                                <h3 className="student-name-small">
+                                                    {getStudentName(booking)}
+                                                </h3>
+                                                <p className="booking-time">
+                                                    {formatDateTime(booking.createdAt)}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="notification-content">
-                                            <p className="notification-message">{notification.message}</p>
-                                            <span className="notification-time">
-                                                {new Date(notification.timestamp).toLocaleString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
-                                            </span>
+                                        <span className={`status-badge ${statusBadge.class}`}>
+                                            <span className="badge-icon">{statusBadge.icon}</span>
+                                            {statusBadge.text}
+                                        </span>
+                                    </div>
+
+                                    <div className="booking-card-body">
+                                        <div className="booking-detail-row">
+                                            <span className="detail-icon">🚌</span>
+                                            <div className="detail-content">
+                                                <span className="detail-label">Route</span>
+                                                <span className="detail-value">
+                                                    {booking.scheduleId?.route || 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="booking-detail-row">
+                                            <span className="detail-icon">💺</span>
+                                            <div className="detail-content">
+                                                <span className="detail-label">Seat</span>
+                                                <span className="detail-value">
+                                                    {booking.seatNumber}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="booking-detail-row">
+                                            <span className="detail-icon">📅</span>
+                                            <div className="detail-content">
+                                                <span className="detail-label">Date</span>
+                                                <span className="detail-value">
+                                                    {booking.scheduleId?.date || 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="booking-detail-row">
+                                            <span className="detail-icon">🚍</span>
+                                            <div className="detail-content">
+                                                <span className="detail-label">Bus</span>
+                                                <span className="detail-value">
+                                                    {booking.scheduleId?.busId?.busNumber || 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="booking-detail-row">
+                                            <span className="detail-icon">🕐</span>
+                                            <div className="detail-content">
+                                                <span className="detail-label">Departure</span>
+                                                <span className="detail-value">
+                                                    {booking.scheduleId?.departureTime || 'N/A'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <div className="empty-state-icon">🔔</div>
-                                <p>No notifications yet</p>
-                            </div>
-                        )}
+                                </div>
+                            );
+                        })}
                     </div>
-                </div>
-
-                {/* Trip Details */}
-                <div className="card details-card">
-                    <div className="card-header">
-                        <h2 className="card-title">
-                            <span className="section-icon">ℹ️</span>
-                            Trip Details
-                        </h2>
+                ) : (
+                    <div className="empty-state">
+                        <div className="empty-state-icon">🎫</div>
+                        <h3>No Recent Bookings</h3>
+                        <p>There are no bookings in the system yet.</p>
                     </div>
-                    <div className="card-body">
-                        <div className="details-list">
-                            <div className="detail-row">
-                                <span className="detail-label">Route:</span>
-                                <span className="detail-value">{studentData?.route?.name || 'N/A'}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Bus Number:</span>
-                                <span className="detail-value">{studentData?.bus?.number || 'N/A'}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Driver:</span>
-                                <span className="detail-value">{studentData?.driver?.name || 'N/A'}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Seat Number:</span>
-                                <span className="detail-value">{studentData?.seatNumber || 'N/A'}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Pickup Location:</span>
-                                <span className="detail-value">{studentData?.pickupLocation || 'N/A'}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Estimated Arrival:</span>
-                                <span className="detail-value">{studentData?.eta || 'Calculating...'}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Reassurance Footer */}
-            <div className="reassurance-footer">
-                <div className="reassurance-icon">🔒</div>
-                <p className="reassurance-text">
-                    Your child's safety is our priority. This page updates automatically every 15 seconds.
-                </p>
+                )}
             </div>
         </div>
     );

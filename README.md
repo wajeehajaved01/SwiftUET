@@ -1,363 +1,391 @@
 # 🚌 SwiftUET - Smart University Bus Management System
 
-A comprehensive, modern bus management system designed for university campuses with role-based dashboards for Students, Drivers, Admins, and Parents.
+> A comprehensive, role-based bus management system for UET Lahore with real-time tracking, seat booking, and automated notifications.
 
-![SwiftUET](https://img.shields.io/badge/SwiftUET-v1.0-blue)
-![Node.js](https://img.shields.io/badge/Node.js-v14+-green)
-![React](https://img.shields.io/badge/React-v18-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-v4+-green)
+[![Status](https://img.shields.io/badge/status-complete-success)]()
+[![Backend](https://img.shields.io/badge/backend-Express.js-green)]()
+[![Frontend](https://img.shields.io/badge/frontend-React-blue)]()
+[![Database](https://img.shields.io/badge/database-MongoDB-brightgreen)]()
 
 ---
 
-## 🎯 Features
+## ✨ Features
 
-### 👨‍🎓 Student Portal
-- **Live Bus Tracking** - Real-time location tracking with interactive maps
-- **Smart Seat Booking** - Visual seat selection with faculty row restrictions
+### 🎓 For Students
+- **Live Bus Tracking** - Real-time location tracking on interactive map
+- **Seat Booking** - Visual seat selection with faculty row restrictions
+- **Booking History** - View past and upcoming rides
 - **Delay Alerts** - Proactive notifications for schedule changes
-- **Boarding History** - Complete ride history organized by month
 
-### 🚗 Driver Dashboard
-- **Dark Mode Interface** - Distraction-free, dashboard-mounted design
-- **Live Navigation** - Route visualization with next stop information
-- **Student Manifest** - Real-time pickup status tracking
-- **Hold-to-Confirm** - Safety feature preventing accidental taps
+### 🚗 For Drivers
+- **Dark Mode Dashboard** - Optimized for dashboard mounting
+- **Student Manifest** - List of students to pick up
+- **Hold-to-Confirm** - Safety feature for marking pickups
+- **Route Navigation** - Clear next stop information
 
-### 👨‍💼 Admin Panel
-- **Analytics Dashboard** - Comprehensive ridership statistics
-- **Bus Management** - CRUD operations for fleet management
-- **Route Management** - Create and manage routes with multiple stops
-- **Schedule Management** - Create, update, and monitor schedules
-- **User Management** - View and filter all system users
-- **Emergency Broadcast** - SMS notifications via Twilio integration
+### 👨‍💼 For Admins
+- **Analytics Dashboard** - Real-time statistics and metrics
+- **Fleet Management** - Create and manage buses, routes, schedules
+- **Driver Assignment** - Assign drivers to buses
+- **Emergency Broadcast** - Send SMS alerts via Twilio
 
-### 👨‍👩‍👧 Parent Tracking
-- **Live Location** - Real-time bus tracking on map
-- **Status Stepper** - Visual journey progress (Waiting → In Transit → Arrived)
-- **Notification Log** - Timestamped updates and alerts
-- **Auto-Refresh** - Automatic updates every 15 seconds
-
----
-
-## 🏗️ Tech Stack
-
-### Frontend
-- **React 18** - Modern UI library
-- **React Router v6** - Client-side routing
-- **Axios** - HTTP client
-- **Leaflet.js** - Interactive maps
-- **CSS Variables** - Consistent theming
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - ODM for MongoDB
-- **JWT** - Authentication
-- **bcrypt** - Password hashing
+### 👨‍👩‍👧 For Parents
+- **Live Tracking** - Monitor student's bus location
+- **Status Updates** - Visual progress stepper
+- **Notification Log** - Historical updates with timestamps
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or Atlas)
+- Node.js v18+
+- MongoDB
 - npm or yarn
 
 ### Installation
 
-1. **Clone the repository**
 ```bash
+# Clone repository
 git clone <repository-url>
 cd RideUET
-```
 
-2. **Install backend dependencies**
-```bash
+# Install backend dependencies
 cd backend
 npm install
-```
 
-3. **Install frontend dependencies**
-```bash
-cd frontend
+# Install frontend dependencies
+cd ../frontend
 npm install
 ```
 
-4. **Configure environment variables**
+### Configuration
 
-Backend `.env`:
+**Backend (.env):**
 ```env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/rideuet
 JWT_SECRET=your-secret-key
-NODE_ENV=development
+TWILIO_ACCOUNT_SID=your-twilio-sid
+TWILIO_AUTH_TOKEN=your-twilio-token
+TWILIO_PHONE_NUMBER=your-twilio-number
 ```
 
-Frontend `.env`:
+**Frontend (.env):**
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
 ```
 
-5. **Start the application**
+### Run Application
 
-Terminal 1 - Backend:
+**Terminal 1 - Backend:**
 ```bash
 cd backend
-npm start
+npm run dev
 ```
 
-Terminal 2 - Frontend:
+**Terminal 2 - Frontend:**
 ```bash
 cd frontend
 npm start
 ```
 
-6. **Access the application**
+### Seed Real UET Route Data (Optional but Recommended)
+
+Populate your database with actual UET New Campus routes:
+```bash
+cd backend
+node scripts/seedUETRoutes.js
+```
+
+This will create:
+- 15 real UET routes with stops and timings
+- 15 driver accounts (driver01@uet.edu.pk to driver15@uet.edu.pk, password: driver123)
+- 15 buses with actual vehicle numbers
+- 105 schedules for the next 7 days
+
+See [UET_ROUTES_SEEDING_GUIDE.md](UET_ROUTES_SEEDING_GUIDE.md) for details.
+
+**Access:**
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000
+- API Health: http://localhost:5000/api/health
 
 ---
 
 ## 📚 Documentation
 
-- **[START_PROJECT.md](START_PROJECT.md)** - Quick start guide
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Comprehensive testing instructions
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
-- **[FEATURE_STATUS.md](FEATURE_STATUS.md)** - Feature completion status
+| Document | Description |
+|----------|-------------|
+| [START_HERE.md](START_HERE.md) | **Start here!** Quick start guide |
+| [QUICK_TEST_GUIDE.md](QUICK_TEST_GUIDE.md) | Quick reference for testing |
+| [HOW_TO_RUN_AND_TEST.md](HOW_TO_RUN_AND_TEST.md) | Comprehensive testing guide |
+| [UET_ROUTES_SEEDING_GUIDE.md](UET_ROUTES_SEEDING_GUIDE.md) | **Seed real UET route data** |
+| [API_ROUTES_COMPLETE.md](API_ROUTES_COMPLETE.md) | Complete API reference |
+| [REQUESTED_ROUTES_STATUS.md](REQUESTED_ROUTES_STATUS.md) | Status of requested routes |
+| [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md) | System architecture |
+| [IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md) | Implementation summary |
+| [FINAL_DEPLOYMENT_CHECKLIST.md](FINAL_DEPLOYMENT_CHECKLIST.md) | Pre-deployment checklist |
 
 ---
 
-## 🎨 Design System
+## 🏗️ Architecture
 
-### Color Palette
-- **Deep Academic Navy** (`#0F172A`) - Primary background and text
-- **Transit Yellow** (`#F59E0B`) - Accent color for CTAs
-- **Teal** (`#06B6D4`) - Highlights and active states
-
-### Design Principles
-- **Mobile-First** - Responsive design optimized for all devices
-- **Thumb-Friendly** - Minimum 48px touch targets
-- **High Contrast** - Accessible color combinations
-- **Smooth Transitions** - Polished user experience
+```
+Frontend (React) ←→ Backend (Express.js) ←→ Database (MongoDB)
+     ↓                      ↓                       ↓
+  - Dashboards         - REST API              - Collections
+  - Components         - Controllers           - Models
+  - Services           - Middleware            - Indexes
+  - Context            - Routes
+```
 
 ---
 
-## 🔐 Authentication & Authorization
+## 🔐 Authentication
 
-### Roles
-- **Student** - Book seats, track buses, view history
-- **Driver** - Manage pickups, view manifest, navigate routes
-- **Admin** - Full system access, manage all resources
-- **Parent** - Track student's bus in real-time
-
-### Security Features
-- JWT-based authentication
-- Role-based access control (RBAC)
-- Protected API endpoints
-- Password hashing with bcrypt
-- Token expiration and refresh
+- **Method:** JWT (JSON Web Tokens)
+- **Storage:** localStorage
+- **Expiry:** 7 days
+- **Roles:** Student, Driver, Admin, Parent
 
 ---
 
 ## 📊 API Endpoints
 
-### Authentication
-```
-POST /api/auth/register - Register new user
-POST /api/auth/login - Login user
-POST /api/auth/logout - Logout user
-```
+### Core Routes (9 Requested)
+✅ `GET /api/users` - Get all users (admin)
+✅ `GET /api/users?role=student` - Filter by role (admin)
+✅ `GET /api/admin/dashboard` - Dashboard stats (admin)
+✅ `GET /api/buses` - Get all buses (public)
+✅ `POST /api/buses` - Create bus (admin)
+✅ `GET /api/schedules` - Get all schedules (public)
+✅ `POST /api/schedules` - Create schedule (admin)
+✅ `POST /api/bookings` - Create booking (student)
+✅ `GET /api/bookings/schedule/:id` - Get bookings (admin/driver)
 
-### Admin (Protected)
-```
-GET  /api/admin/dashboard - Dashboard statistics
-POST /api/admin/assign-driver - Assign driver to bus
-POST /api/admin/toggle-faculty-rows - Lock/unlock faculty rows
-POST /api/admin/broadcast - Send broadcast notification
-GET  /api/admin/analytics - Get analytics data
-```
+### Additional Routes
+✅ `GET /api/bookings/my-bookings` - My bookings (student)
+✅ `PATCH /api/bookings/:id/pickup` - Mark picked up (driver)
+✅ Plus 30+ more endpoints
 
-### Buses (Protected)
-```
-GET    /api/buses - Get all buses
-POST   /api/buses - Create bus (Admin)
-DELETE /api/buses/:id - Delete bus (Admin)
-```
+**Total: 43 API Endpoints**
 
-### Routes (Protected)
-```
-GET    /api/routes - Get all routes
-POST   /api/routes - Create route (Admin)
-DELETE /api/routes/:id - Delete route (Admin)
-```
-
-### Schedules (Protected)
-```
-GET   /api/schedules - Get all schedules
-GET   /api/schedules/today - Get today's schedules
-POST  /api/schedules - Create schedule (Admin)
-PATCH /api/schedules/:id/status - Update status (Admin)
-```
-
-### Bookings (Protected)
-```
-GET    /api/bookings/my - Get user's bookings
-POST   /api/bookings - Create booking
-PATCH  /api/bookings/:id/status - Update booking status
-DELETE /api/bookings/:id - Cancel booking
-```
+See [API_ROUTES_COMPLETE.md](API_ROUTES_COMPLETE.md) for full list.
 
 ---
 
-## 🗂️ Project Structure
+## 🎨 Tech Stack
+
+### Frontend
+- **Framework:** React 18
+- **Routing:** React Router v6
+- **HTTP Client:** Axios
+- **Maps:** Leaflet.js
+- **Styling:** Custom CSS with CSS Variables
+
+### Backend
+- **Framework:** Express.js
+- **Database:** MongoDB with Mongoose
+- **Authentication:** JWT + bcrypt
+- **Validation:** express-validator
+- **SMS:** Twilio
+
+### DevOps
+- **Version Control:** Git
+- **Package Manager:** npm
+- **Development:** nodemon (backend), react-scripts (frontend)
+
+---
+
+## 📁 Project Structure
 
 ```
 RideUET/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # Configuration files
-│   │   ├── controllers/     # Route controllers
-│   │   ├── middleware/      # Auth, validation, error handling
-│   │   ├── models/          # Mongoose models
+│   │   ├── config/          # Database, Twilio config
+│   │   ├── controllers/     # Business logic
+│   │   ├── middleware/      # Auth, validation, errors
+│   │   ├── models/          # MongoDB schemas
 │   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic
-│   │   ├── utils/           # Utility functions
+│   │   ├── services/        # External services
+│   │   ├── utils/           # Helper functions
 │   │   └── server.js        # Entry point
-│   ├── .env                 # Environment variables
+│   ├── .env.example
 │   └── package.json
-│
 ├── frontend/
-│   ├── public/
 │   ├── src/
 │   │   ├── components/      # Reusable components
-│   │   │   ├── admin/       # Admin-specific components
-│   │   │   ├── common/      # Shared components
-│   │   │   └── student/     # Student-specific components
-│   │   ├── contexts/        # React contexts (Auth)
+│   │   ├── contexts/        # React contexts
 │   │   ├── pages/           # Page components
-│   │   │   ├── admin/       # Admin pages
-│   │   │   ├── driver/      # Driver pages
-│   │   │   ├── parent/      # Parent pages
-│   │   │   └── student/     # Student pages
-│   │   ├── services/        # API services
-│   │   ├── App.js           # Main app component
-│   │   ├── App.css          # Global styles
-│   │   └── index.css        # Theme variables
-│   ├── .env                 # Environment variables
+│   │   ├── services/        # API service
+│   │   ├── App.js
+│   │   └── index.js
+│   ├── .env.example
 │   └── package.json
-│
-├── docs/                    # Documentation
-├── README.md                # This file
-├── START_PROJECT.md         # Quick start guide
-├── TESTING_GUIDE.md         # Testing instructions
-└── IMPLEMENTATION_SUMMARY.md # Technical details
+└── docs/                    # Documentation
 ```
-
----
-
-## ✅ Completed Features
-
-- [x] User authentication and authorization
-- [x] Role-based dashboards (Student, Driver, Admin, Parent)
-- [x] Admin bus management (CRUD)
-- [x] Admin route management (CRUD)
-- [x] Admin schedule management (CRUD)
-- [x] Admin user management (View)
-- [x] Student seat booking with faculty restrictions
-- [x] Driver dashboard with hold-to-confirm
-- [x] Parent tracking with status stepper
-- [x] Responsive design (mobile-first)
-- [x] Protected routes with role-based access
-- [x] SwiftUET branding and theme
-
----
-
-## 🚧 Pending Features
-
-- [ ] Real-time GPS tracking integration
-- [ ] Twilio SMS integration for broadcasts
-- [ ] WebSocket for live notifications
-- [ ] Chart.js for analytics visualization
-- [ ] User profile editing
-- [ ] Password reset functionality
-- [ ] Email notifications
-- [ ] Push notifications
-- [ ] Booking history export
-- [ ] Advanced analytics and reporting
 
 ---
 
 ## 🧪 Testing
 
-Run the test suite:
+### Quick Test
 ```bash
-# Backend tests
-cd backend
-npm test
+# Test backend health
+curl http://localhost:5000/api/health
 
-# Frontend tests
-cd frontend
-npm test
+# Register user
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Test","lastName":"User","email":"test@uet.edu.pk","password":"test123","phoneNumber":"+923001234567","role":"student"}'
+
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@uet.edu.pk","password":"test123","role":"student"}'
 ```
 
-For comprehensive testing instructions, see [TESTING_GUIDE.md](TESTING_GUIDE.md)
+See [QUICK_TEST_GUIDE.md](QUICK_TEST_GUIDE.md) for more tests.
 
 ---
 
-## 🤝 Contributing
+## 🎯 Key Features Implemented
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Security
+✅ JWT authentication
+✅ Role-based authorization
+✅ Password hashing (bcrypt)
+✅ Input validation
+✅ CORS protection
+✅ Helmet security headers
+
+### Functionality
+✅ User management (CRUD)
+✅ Bus management (CRUD)
+✅ Route management (CRUD)
+✅ Schedule management (CRUD)
+✅ Booking system with seat selection
+✅ Real-time location tracking
+✅ SMS notifications (Twilio)
+✅ Faculty row restrictions
+✅ Driver pickup confirmation
+
+### UI/UX
+✅ Responsive design
+✅ Role-based dashboards
+✅ Dark mode (driver)
+✅ Mobile-friendly
+✅ SwiftUET branding
+✅ Smooth animations
+✅ Accessibility features
 
 ---
 
-## 📝 License
+## 📈 Database Schema
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Collections
+- **Users** - Students, drivers, admins, parents
+- **Buses** - Fleet information
+- **Routes** - Bus routes with stops
+- **Schedules** - Daily bus schedules
+- **Bookings** - Seat reservations
+- **Notifications** - System notifications
+- **Locations** - Real-time GPS data
+
+See [docs/database-schema.md](docs/database-schema.md) for details.
 
 ---
 
-## 👥 Team
+## 🔒 Authorization Matrix
 
-- **Project Lead** - University of Engineering and Technology
-- **Development Team** - SwiftUET Development Team
+| Feature | Student | Driver | Admin | Parent |
+|---------|---------|--------|-------|--------|
+| View Schedules | ✅ | ✅ | ✅ | ✅ |
+| Book Seat | ✅ | ❌ | ❌ | ❌ |
+| Mark Pickup | ❌ | ✅ | ✅ | ❌ |
+| Manage Fleet | ❌ | ❌ | ✅ | ❌ |
+| Track Student | ❌ | ❌ | ❌ | ✅ |
+| Send Broadcast | ❌ | ❌ | ✅ | ❌ |
+
+---
+
+## 🚦 Status
+
+### ✅ Completed
+- All 9 requested API routes
+- 4 role-based dashboards
+- Authentication & authorization
+- Database models & schemas
+- API documentation
+- Testing guides
+
+### 🎯 Ready for
+- Production deployment
+- User acceptance testing
+- Integration testing
+- Performance testing
 
 ---
 
 ## 📞 Support
 
-For support, email support@swiftuet.com or open an issue in the repository.
+### Getting Help
+1. Check documentation files
+2. Review console logs
+3. Verify environment variables
+4. Ensure MongoDB is running
+5. Check port availability
+
+### Common Issues
+- **MongoDB Connection:** Ensure MongoDB is running
+- **Port Conflict:** Change PORT in .env
+- **API Errors:** Check token in Authorization header
+- **Frontend Errors:** Verify REACT_APP_API_URL
+
+---
+
+## 🎉 Success Indicators
+
+You'll know everything is working when:
+- ✅ Backend shows "MongoDB Connected"
+- ✅ Frontend loads without errors
+- ✅ Can register and login
+- ✅ Dashboard shows correct data
+- ✅ All CRUD operations work
+- ✅ Real-time features update
+
+---
+
+## 📝 License
+
+This project is licensed under the ISC License.
+
+---
+
+## 👥 Contributors
+
+- UET Lahore Development Team
 
 ---
 
 ## 🙏 Acknowledgments
 
-- University of Engineering and Technology for project sponsorship
-- All contributors and testers
-- Open source community for amazing tools and libraries
+- UET Lahore for project requirements
+- Twilio for SMS integration
+- Leaflet.js for mapping
+- MongoDB for database
+- React & Express.js communities
 
 ---
 
-**Built with ❤️ for UET Community**
+## 📧 Contact
+
+For questions or support, please contact the development team.
 
 ---
 
-## 📈 Version History
+**Built with ❤️ for UET Lahore**
 
-### v1.0.0 (Current)
-- Initial release
-- Complete authentication system
-- Role-based dashboards
-- Admin management panel
-- Student booking system
-- Driver interface
-- Parent tracking
-
----
-
-**Last Updated:** May 19, 2026
+**Status: ✅ Complete and Ready for Deployment**

@@ -243,3 +243,40 @@ exports.getBookingsBySchedule = async (req, res, next) => {
         next(error);
     }
 };
+
+// @desc    Mark booking as picked up
+// @route   PATCH /api/bookings/:id/pickup
+// @access  Private/Driver
+exports.markAsPickedUp = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const booking = await Booking.findById(id)
+            .populate('studentId', 'firstName lastName phoneNumber parentId')
+            .populate('scheduleId');
+
+        if (!booking) {
+            throw new AppError('Booking not found', 404);
+        }
+
+        if (booking.status !== 'confirmed') {
+            throw new AppError('Only confirmed bookings can be marked as picked up', 400);
+        }
+
+        // Update booking status
+        booking.status = 'picked-up';
+        booking.pickedUpAt = new Date();
+        await booking.save();
+
+        // Send notification to parent
+        await notificationService.notifyStudentPickedUp(booking.studentId._id, booking);
+
+        res.json({
+            success: true,
+            data: booking,
+            message: 'Student marked as picked up successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};

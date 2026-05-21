@@ -18,7 +18,7 @@ const bookingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['confirmed', 'cancelled', 'completed', 'no-show'],
+        enum: ['confirmed', 'cancelled', 'completed', 'no-show', 'picked-up'],
         default: 'confirmed'
     },
     pickupStopId: {
@@ -29,6 +29,7 @@ const bookingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'Dropoff stop is required']
     },
+    pickedUpAt: Date,
     cancelledAt: Date,
     cancellationReason: String
 }, {
